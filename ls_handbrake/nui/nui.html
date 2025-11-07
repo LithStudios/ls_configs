@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handbrake Sound</title>
+</head>
+<body>
+    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'tightenHandbrake') {
+                const audio = new Audio('handbrake_tighten.mp3');
+                audio.volume = event.data.volume || 0.5;
+                audio.play();
+            } else if (event.data.action === 'releaseHandbrake') {
+                const audio = new Audio('handbrake_release.mp3');
+                audio.volume = event.data.volume || 0.5;
+                audio.play();
+            }
+        });
+    </script>
+</body>
+</html>

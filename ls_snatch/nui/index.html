@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Reaction Minigame</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: transparent;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-spawn-area {
+            position: absolute;
+            width: 40vmin;
+            height: 40vmin;
+        }
+
+        .key {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s ease-out;
+            user-select: none;
+            width: 60px;
+            height: 60px;
+        }
+
+        .key.missed {
+            background: rgba(220, 38, 38, 0.8);
+            border-color: white;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .key.success {
+            background: rgba(22, 163, 74, 0.8);
+            border-color: white;
+            transform: scale(0.9);
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-area" id="gameArea">
+        <div class="key-spawn-area" id="keySpawnArea"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            isRunning: false,
+            currentKey: null,
+            keyElement: null,
+            keyTimeout: null,
+            animationFrame: null,
+            keysRemaining: 0,
+            startTime: 0,
+            currentKeyStartTime: 0,
+            keyDuration: 1500,
+            gameResult: null // 'success' or 'fail'
+        };
+
+        let key_count = 5;
+
+        const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        function startGame() {
+            if (gameState.isRunning) return;
+
+            const keyCount = Math.floor(Math.random() * (key_count.max - key_count.min + 1)) + key_count.min;
+            // const keyCount = 1;
+            const speed = 1200; // Fixed to 1500ms
+
+            gameState.isRunning = true;
+            gameState.keysRemaining = keyCount;
+            gameState.keyDuration = speed;
+            gameState.gameResult = null;
+
+            // Clear any existing key
+            if (gameState.keyElement) {
+                gameState.keyElement.remove();
+                gameState.keyElement = null;
+            }
+
+            setTimeout(() => {
+                if (gameState.isRunning) {
+                    nextKey();
+                }
+            }, 1000);
+        }
+
+        function nextKey() {
+            if (!gameState.isRunning || gameState.keysRemaining <= 0) {
+                endGame('success');
+                return;
+            }
+
+            // Clean up previous key
+            if (gameState.keyElement) {
+                gameState.keyElement.remove();
+            }
+
+            // Generate random key
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            gameState.currentKey = randomKey;
+            gameState.currentKeyStartTime = Date.now();
+
+            gameState.keysRemaining--;
+
+            // Create key element
+            const keyElement = document.createElement('div');
+            keyElement.className = 'key';
+            keyElement.textContent = randomKey;
+            keyElement.style.opacity = '0.1';
+            keyElement.style.transform = 'scale(0.1)';
+
+            // Position key randomly within the spawn area
+            const spawnArea = document.getElementById('keySpawnArea');
+            const spawnRect = spawnArea.getBoundingClientRect();
+            const keySize = 60; // Key width/height in pixels
+
+            // Calculate random position within the spawn area bounds
+            const maxX = spawnRect.width - keySize;
+            const maxY = spawnRect.height - keySize;
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            keyElement.style.left = randomX + 'px';
+            keyElement.style.top = randomY + 'px';
+
+            spawnArea.appendChild(keyElement);
+            gameState.keyElement = keyElement;
+
+            // Animate key appearance
+            animateKey();
+
+            // Set timeout for key expiration
+            gameState.keyTimeout = setTimeout(() => {
+                if (gameState.isRunning && gameState.currentKey === randomKey) {
+                    keyMissed();
+                }
+            }, gameState.keyDuration);
+        }
+
+        function animateKey() {
+            if (!gameState.keyElement || !gameState.isRunning) return;
+
+            const elapsed = Date.now() - gameState.currentKeyStartTime;
+            const progress = Math.min(elapsed / gameState.keyDuration, 1);
+
+            // Ease-out animation
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+            const opacity = 0.1 + (0.9 * easeProgress);
+            const scale = 0.1 + (0.9 * easeProgress);
+
+            gameState.keyElement.style.opacity = opacity.toString();
+            gameState.keyElement.style.transform = `scale(${scale})`;
+
+            if (progress < 1) {
+                gameState.animationFrame = requestAnimationFrame(animateKey);
+            }
+        }
+
+        function keyPressed(key) {
+            if (!gameState.isRunning || !gameState.currentKey) return;
+
+            if (key.toUpperCase() === gameState.currentKey) {
+                // Correct key pressed
+                clearTimeout(gameState.keyTimeout);
+                if (gameState.animationFrame) {
+                    cancelAnimationFrame(gameState.animationFrame);
+                }
+
+                gameState.keyElement.classList.add('success');
+
+                setTimeout(() => {
+                    if (gameState.keyElement) {
+                        gameState.keyElement.remove();
+                        gameState.keyElement = null;
+                    }
+                    gameState.currentKey = null;
+
+                    setTimeout(() => {
+                        if (gameState.isRunning) {
+                            nextKey();
+                        }
+                    }, 200);
+                }, 300);
+            } else {
+                // Wrong key pressed
+                keyMissed();
+            }
+        }
+
+        function keyMissed() {
+            if (!gameState.isRunning) return;
+
+            clearTimeout(gameState.keyTimeout);
+            if (gameState.animationFrame) {
+                cancelAnimationFrame(gameState.animationFrame);
+            }
+
+            if (gameState.keyElement) {
+                gameState.keyElement.classList.add('missed');
+            }
+
+            setTimeout(() => {
+                endGame('fail');
+            }, 500);
+        }
+
+        function endGame(result) {
+            SendMessage('result', result === 'success')
+            gameState.isRunning = false;
+            gameState.gameResult = result;
+
+            clearTimeout(gameState.keyTimeout);
+            if (gameState.animationFrame) {
+                cancelAnimationFrame(gameState.animationFrame);
+            }
+
+            setTimeout(() => {
+                if (gameState.keyElement) {
+                    gameState.keyElement.remove();
+                    gameState.keyElement = null;
+                }
+                gameState.currentKey = null;
+            }, 1000);
+        }
+
+        // Keyboard event listener
+        document.addEventListener('keydown', function (event) {
+            if (gameState.isRunning) {
+                event.preventDefault();
+                keyPressed(event.key);
+            }
+        });
+
+        // Prevent context menu and other interactions during game
+        document.addEventListener('contextmenu', function (event) {
+            if (gameState.isRunning) {
+                event.preventDefault();
+            }
+        });
+
+        // Focus management
+        window.addEventListener('focus', function () {
+            // Game continues when window regains focus
+        });
+
+        window.addEventListener("message", (event) => {
+            const data = event.data
+
+            if (data.action === "open") {
+                document.body.style.display = "block"
+                startGame()
+            }
+
+            if (data.action === 'keycount') {
+                key_count = data.keycount
+            }
+
+            if (data.action === "close") {
+                document.body.style.display = "none"
+            }
+        })
+
+        function SendMessage(event_name, data) {
+            fetch(`https://${GetParentResourceName()}/${event_name}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({
+                    result: data
+                })
+            })
+        }
+    </script>
+</body>
+
+</html>

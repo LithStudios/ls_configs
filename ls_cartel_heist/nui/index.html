@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="styles.css">
+      <link href="https://fonts.cdnfonts.com/css/dseg14-classic" rel="stylesheet">                
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div id="fail-container">
+      <a id="cut-fail">Cutting Wires Failed</a>
+    </div>
+    <div class="minigame-class">
+      <div class="rgb-background"></div>
+      <div class="door-left"></div>
+      <div class="minigame">
+          <div class="background-image"></div>    
+          <div class="text-change">        
+              <span class="text">Repeat the colors on wires</span>
+          </div>
+          <div class="indicator" id="indicator"></div>
+          <div class="cover-left"></div>
+          <div class="cover-right"></div>
+          <div class="cable-container">
+            <div class="cable" data-color="red"></div>
+            <div class="cable" data-color="green"></div>
+            <div class="cable" data-color="blue"></div>
+            <div class="cable" data-color="yellow"></div>          
+          </div>
+      </div>
+    <div class="custom-cursor">
+      <img src="wire-cutters.png" alt="Custom Cursor Sprite">
+    </div>
+   </div>
+    <div id="wrapper">
+      <div id="reader" data-status="">
+        <div class="top">
+          <div class= "line1"></div>
+          <div class= "line2"></div>
+          <div class= "line3"></div>
+          <div class= "line4"></div>
+          <div class= "line5"></div>          
+          <div class="screen">
+            <div id="message"></div>
+          </div>
+          <div class="lights">
+            <div class="light red"></div>
+            <div class="light green"></div>
+          </div>
+        </div>
+        <div id="card">
+        </div>
+        <div class="bottom"></div>
+      </div>
+    </div>
+    <div id="wrapperdui">
+      <div id="reader" data-status="">
+        <div class="top">
+          <div class= "line1"></div>
+          <div class= "line2"></div>
+          <div class= "line3"></div>
+          <div class= "line4"></div>
+          <div class= "line5"></div>          
+          <div class="screen">
+            <div id="message"></div>
+          </div>
+          <div class="lights">
+            <div class="light red"></div>
+            <div class="light green"></div>
+          </div>
+        </div>        
+        <div class="bottom"></div>
+      </div>
+    </div>      
+    <div id="testText">test</div>
+  </body>
+</html>
+
+<style>
+    
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+    width: 100vw;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;    
+    display:none;
+  }
+
+  #cut-fail {
+      color: #FF0000; /* Red color for urgency */
+      font-size: 100px;
+      -webkit-text-stroke-width: 1px; 
+      -webkit-text-stroke-color: #000000; /* Yellow stroke for contrast */
+      font-family: 'Orbitron', Arial, sans-serif;
+      font-weight: 500;
+      letter-spacing: 1px; /* Add letter spacing for readability */
+      z-index: 5;
+    }
+
+    #fail-container {
+      position: absolute;
+      width: var(--minigame-width);
+      height: var(--minigame-height);
+      top: 50%; /* Center vertically */
+      left: 50%; /* Center horizontally */
+      transform: translate(-50%, -50%);
+      border-radius: 5%;
+      overflow: hidden;
+      z-index : 4;
+    }
+
+    #fail-container::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url('metal-background.jpg');
+      -webkit-filter: blur(5px); /* Safari 6.0 - 9.0 */
+      filter: blur(5px);
+      z-index: -1;
+      border-radius: inherit;
+    }
+
+    #fail-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #fail-container{
+      display:none;
+    }
+
+  @font-face {
+    font-family: 'Orbitron';
+    src: url('path/to/Orbitron-Regular.woff2') format('woff2'),
+    url('path/to/Orbitron-Regular.woff') format('woff');
+    /* Add other font weights and styles if needed */
+  }
+
+  
+  .door-left {
+  height: var(--minigame-height);
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%);
+  perspective: 1000px;
+  position: absolute;
+  width: var(--minigame-width);
+  height: var(--minigame-height);
+  transform-origin: top;
+  transition: all 0.5s ease-in-out;
+  z-index: 5;
+}
+
+.door-left::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('metal-background.jpg');
+    transform-origin: left;
+    transition: transform 1.0s;
+  }
+  
+  .door-left.rotate::before {
+    transform: rotateY(-120deg);
+  }  
+    
+    .text-change {
+      display: flex;
+      gap: 10px; /* Adjust spacing between the circle and text */  
+      justify-content: center;
+     
+    }
+    
+    .text {
+      color: #FF0000; /* Red color for urgency */
+      -webkit-text-stroke-width: 1px; 
+      -webkit-text-stroke-color: #FFFF00; /* Yellow stroke for contrast */
+      font-size: 3.5vh;
+      font-family: 'Orbitron', Arial, sans-serif;
+      font-weight: 500; /* Adjust font weight for a bolder look */
+      margin-top: 18vh;
+      z-index: 3;
+      letter-spacing: 1px; /* Add letter spacing for readability */
+      
+    }
+    
+    @property --rotate {
+      syntax: "<angle>";
+      initial-value: 132deg;
+      inherits: false;
+    }
+    
+    :root {
+      --minigame-height: 65vh;
+      --minigame-width: calc(var(--minigame-height) * 1.5);
+    }
+    
+    .minigame-class{
+      display:none;
+    }
+    
+    .minigame {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);    
+        width: var(--minigame-width);
+        height: var(--minigame-height);
+        top: 50%; /* Center vertically */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%);
+        border-radius: 5%;
+        overflow: hidden;
+    }
+    
+    .rgb-background {
+      position: absolute;
+      content: "";
+      top: calc(var(--minigame-height) / 10);
+      left: 0;
+      right: 0;
+      z-index: -1;
+      height: 50%;
+      width: 50%;
+      margin: 0 auto;
+      transform: scale(1.1);
+      filter: blur(calc(var(--minigame-height) / 6));
+      background-image: linear-gradient(var(--rotate), #7700ff9f, #90acff 43%, #e08e13d8); opacity: 0.6;
+      transition: opacity .5s;
+      animation: spin 2.5s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% {
+        --rotate: 0deg;
+      }
+      100% {
+        --rotate: 360deg;
+      }
+    }
+    
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('metal-background.jpg');
+        border-radius: 5%;
+        filter:grayscale(0.75);    
+    }
+    
+    
+    .cover-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1%; /* Adjust the width to cover a bit of the left side */
+        height: 100%;
+        background: linear-gradient(270deg, rgba(88, 40, 0, 0.9) 0%, black 100%);
+        z-index: 2;
+        border-top-right-radius: 75px;
+        border-bottom-right-radius: 75px;
+    }
+    
+    
+    .cover-right {    
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1%; /* Adjust the width to cover a bit of the right side */
+        height: 100%;
+        background: linear-gradient(90deg, rgba(88, 40, 0, 0.9) 0%, black 100%);
+        z-index: 2;
+        border-top-left-radius: 75px;
+        border-bottom-left-radius: 75px;
+        
+    }
+    
+    .indicator {
+        width: 15vh;
+        height: 15vh;
+        background-color: rgb(0, 0, 0);
+        border-radius: 50%; /* Makes it a circle */
+        border: 5px double grey; /* Adds a white border with 2px width */
+        align-items: center;
+        top: 0;
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        align-items: center; /* Center the content vertically */
+        position: absolute;
+        left: 50%; /* Center the indicator horizontally */
+        transform: translateX(-50%); /* Center the indicator horizontally */
+        
+    }
+    
+    
+    
+    .cable-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        height: 50%;
+        margin-top: 20px; /* Add margin at the top for the indicator */
+        position: absolute; /* Position the cables below the indicator */
+        width: 100%;
+        
+    }
+    
+    /* Style for the cable */
+    .cable {
+      width: 100%;
+      height: 2vh;
+      cursor: pointer;
+      position: relative; /* Add relative positioning to the cable */
+    }
+    
+    .cable.cut {
+        background-color: transparent;
+        cursor: default;
+        pointer-events: none; /* Disable further clicks on the cable */
+    }
+    
+    .raw-wire {
+        position: absolute;
+        bottom: 0;
+        height: 100%;
+    }
+    
+    .custom-cursor {
+      position: absolute;
+      pointer-events: none; /* Allow clicks to pass through the sprite */
+      width: 50px; /* Adjust the size of the sprite as needed */
+      height: 50px;
+      transform: translate(-50%, -50%); /* Center the sprite on the cursor */
+      z-index: 999999; /* Ensure the cursor appears above other elements */
+  }
+  
+
+
+  .cable[data-color="red"], 
+  .cable[data-color="blue"], 
+  .cable[data-color="yellow"], 
+  .cable[data-color="green"] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 2vh;
+    cursor: pointer;
+  }
+
+
+  .cable[data-color="red"]::before, 
+  .cable[data-color="blue"]::before, 
+  .cable[data-color="yellow"]::before, 
+  .cable[data-color="green"]::before,
+  .cable[data-color="red"]::after, 
+  .cable[data-color="blue"]::after, 
+  .cable[data-color="yellow"]::after, 
+  .cable[data-color="green"]::after {
+    content: '';
+    position: absolute;
+    width: 30px; /* Adjust the connector width */
+    height: 30px; /* Adjust the connector height */
+    border-radius: 25%; /* Make connectors round */
+    background-color: rgba(70, 57, 57, 0.9); /* Connector color */
+    z-index: 1;
+  }
+
+  /* Left connector */
+  .cable[data-color="red"]::before, 
+  .cable[data-color="blue"]::before, 
+  .cable[data-color="yellow"]::before, 
+  .cable[data-color="green"]::before {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Right connector */
+  .cable[data-color="red"]::after, 
+  .cable[data-color="blue"]::after, 
+  .cable[data-color="yellow"]::after, 
+  .cable[data-color="green"]::after {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  
+    .cable[data-color="red"] {
+      background: linear-gradient(180deg, #FF3333 0%, #FF3333 44%, black 100%);
+      
+      filter:saturate(0.5)
+    }
+    .cable[data-color="red"]:hover {
+      filter:saturate(1.0)
+    }
+    
+    .cable[data-color="green"] {
+      background: linear-gradient(180deg, #33FF33 0%, #33FF33 44%,  black 100%);
+     
+      filter:saturate(0.5)
+    }
+    .cable[data-color="green"]:hover {  
+      filter:saturate(1.0)
+    }
+  
+    
+    .cable[data-color="blue"] {
+      background: linear-gradient(180deg, blue 0%, blue 44%, black 100%);
+          
+      filter:saturate(0.5)
+    }
+    .cable[data-color="blue"]:hover {  
+      filter:saturate(1.0)
+    }
+    
+    .cable[data-color="yellow"] {
+      background: linear-gradient(180deg, #FFFF33 0%, #FFFF33 44%,  black 100%);
+       
+      filter:saturate(0.5)
+    }
+    .cable[data-color="yellow"]:hover {   
+      filter:saturate(1.0)
+    }
+       
+    .cable.lit {
+        background-color: rgb(41, 39, 39);
+    }
+
+    
+    
+    
+  
+  #wrapper {
+    display:none;
+    position: relative;
+    width: 600px;
+    height: 250px;
+  }
+
+  #wrapperdui {
+    display:none;
+    position: relative;
+    width: 600px;
+    height: 250px;
+  }
+
+  
+  
+  #reader {
+    width: 100%;
+    height: 400px;
+  }
+  
+  #reader .top {
+    position: relative;
+    width: 100%;
+    height: 125px;
+    z-index: 100;
+    box-shadow: 10px -7px 5px 0px rgba(0, 0, 0, 0.5);
+  }
+  
+  #reader .bottom {
+    width: 100%;
+    height: 75px;
+    box-shadow: 10px -7px 5px 0px rgba(0, 0, 0, 0.5);
+  }
+  
+  #reader .lights {
+    position: absolute;
+    right: 10px;
+    bottom: -4px;
+  }
+  
+  .light {
+    display: inline-block;
+    width: 10px;
+    height: 25px;
+  }
+  
+  #card {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: absolute;
+    margin-top: -75px;
+    width: 375px;
+    height: 225px;
+    transform: translateX(-125px);
+    background-image: url('https://dunb17ur4ymx4.cloudfront.net/webstore/logos/e891d2b977ed3cebd54030ef3557e4f40de75948.png');
+    background-size: 375px 225px;
+    box-shadow: 10px -7px 5px 0px rgba(0, 0, 0, 0.5);
+  }
+  
+  #card.slide {
+    transition: transform 1s;
+  }
+  
+  
+  #wrapper {
+    background-color: #000000;
+    border: 4px solid #000;    
+    border-radius: 10px;
+  }
+  
+  #wrapperdui {
+    background-color: #000000;
+    border: 4px solid #000;    
+    border-radius: 10px;
+  }
+  
+  #reader .top,
+  #reader .bottom {
+    background-color: rgb(138, 158, 134);
+    border: 4px solid #000;
+    
+    border-radius: 10px;
+  }
+  
+  #reader .top {
+    width: calc(100% + 8px);
+    padding: 16px;
+    margin: -4px 0 0 -3px;
+  }
+
+  
+  #reader .line1 {
+    content: "";
+    position: absolute;
+    left: 30px;
+    bottom: 24px;
+    width: 560px; 
+    height: 5px; 
+    background-color: #000000;
+  }
+
+#reader .line2 {
+    content: "";
+    position: absolute;
+    left: 30px;
+    bottom: 34px;
+    width: 560px; 
+    height: 2px; 
+    background-color: #000000;
+  }
+
+  #reader .line3 {
+    content: "";
+    position: absolute;
+    left: 30px;
+    top: 115px;
+    width: 560px; 
+    height: 5px; 
+    background-color: #000000;
+  }
+
+#reader .line4 {
+    content: "";
+    position: absolute;
+    left: 30px;    
+    top: 110px;
+    width: 560px; 
+    height: 2px; 
+    background-color: #000000;
+  }
+
+  #reader .line5 {
+    content: "";
+    position: absolute;
+    left: 30px;    
+    top: 100px;
+    width: 560px; 
+    height: 8px; 
+    background-color: #000000;
+  }
+
+  
+  #reader .top:before {
+    content: "";
+    position: absolute;
+    left: 30px;
+    bottom: 12px;
+    width: 560px; 
+    height: 10px; 
+    background-color: #000000;
+  }
+
+  #reader .bottom {
+    width: calc(100% + 8px);
+    margin: 10px 0 0 -4px;
+    border-top-left-radius: 30px;
+  }
+  
+  #reader .screen {
+    border: 4px solid #000;
+    padding: 4px;
+    margin: 0 12px;
+    background-color: #344e66;
+  }
+  
+  #message {
+    font-family: 'DSEG14 Classic', sans-serif;
+    font-size: 24px;
+    color: #7ad33f;
+    text-transform: uppercase;
+    animation: jitter 3s infinite steps(2);
+  }
+  
+  #message:after {
+    content: "Swipe the card.";
+  }
+
+  [data-status="resetText"] #message:after {
+    content: "Swipe the card.";
+  }
+  
+  [data-status="invalid"] #message:after {
+    content: "Swipe the card again.";
+  }
+  
+  [data-status="slow"] #message:after {
+    content: "Too slow. Try again.";
+  }
+  
+  [data-status="fast"] #message:after {
+    content: "Too fast. Try again.";
+  }
+  
+  [data-status="valid"] #message:after {
+    content: "Card accepted.";
+  }
+  
+  .light {
+    border-width: 2px 2px 0 2px; /* top right bottom left */
+    border-style: solid;
+    border-color: #000; /* You can specify your preferred color */
+    filter: saturate(0.6) brightness(0.7);
+  }
+  
+  .red {
+    background-color: #d82e22ec;
+  }
+  
+  .green {
+    background-color: #48b808;
+  }
+  
+  [data-status="invalid"] .red,
+  [data-status="slow"] .red,
+  [data-status="fast"] .red,
+  [data-status="valid"] .green {
+    filter: none;
+  }
+  
+  #card {
+    border: 2px solid #d64f10;    
+    border-radius: 15px;
+    cursor: grab;
+    
+  }
+  
+  
+  @keyframes jitter {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(5px);
+    }
+  }
+
+  #testText {
+    display:none;
+    background-color: yellowgreen;
+    text-align: center;
+    font-size: 32px;
+  }
+
+  .failed-text {
+  color: #FF0000; /* Red color for failure */
+  } 
+
+  
+  </style>
+
+
+<script>
+
+  
+  $(document).ready(() => {
+  const colors = ["red", "green", "blue", "yellow"];  // Define the sequence of colors
+  let sequence = generateRandomSequence(colors);      // Generate a random sequence
+  let sequenceIndex = 0;                              // Index to track the current color in the sequence
+  let showingSequence = true;                         // Flag to track whether we are showing the sequence
+
+  var electro = new Audio("electro.wav");
+  electro.volume = 0.00;
+
+  const indicator = document.getElementById('indicator');
+  const textChange = document.querySelector('.text-change .text');
+
+  function generateRandomSequence(colors) {
+    const shuffledColors = colors.slice().sort(() => Math.random() - 0.5);
+
+    const sequence = [];
+    for (let i = 0; i < 5; i++) { // Adjust the length as needed
+      if (shuffledColors.length > 0) {
+        const randomColor = shuffledColors.pop();
+        sequence.push(randomColor);
+      }
+    }
+    return sequence;
+  }  
+
+  function changeIndicatorColor() {
+    if (showingSequence) {
+      if (sequenceIndex < sequence.length) {
+        indicator.style.backgroundColor = sequence[sequenceIndex];
+        sequenceIndex++;
+      } else {
+        showingSequence = false;
+        sequenceIndex = 0;
+        textChange.textContent = "Cut the cables in the correct order";
+      }
+    }
+  }
+
+  function resetMinigame() {
+    // Reset variables and state
+    sequence = generateRandomSequence(colors);
+    sequenceIndex = 0;
+    showingSequence = true;
+
+    // Reset minigame elements
+    indicator.style.backgroundColor = 'rgb(0, 0, 0)';
+    textChange.textContent = 'Repeat the colors on wires';
+    $('.cable').removeClass('cut');
+    $('.raw-wire').remove();
+    $('.door-left').removeClass('rotate').css('z-index', '5');
+  }
+
+
+  function checkPlayerInput(color) {
+    if (!showingSequence && sequence[sequenceIndex] === color) {
+      sequenceIndex++;
+      if (sequenceIndex === sequence.length) {
+        resetMinigame();
+        $.post('https://ls_cartel_heist/success', JSON.stringify({}));
+      }
+    } else {
+      const failContainer = document.getElementById('fail-container');
+      failContainer.style.display = 'flex';
+        setTimeout(function() {
+        $.post('https://ls_cartel_heist/failed', JSON.stringify({}));
+        resetMinigame();
+        failContainer.style.display = 'none';
+        textChange.textContent === "Repeat the colors on wires";
+      }, 1500);
+    }
+  }
+
+  $('.cable').click(function (e) {
+    // Check if the text is "Cut the cables in the correct order" before proceeding
+    if (textChange.textContent === "Cut the cables in the correct order") {
+        const color = $(this).data('color');
+        checkPlayerInput(color);
+
+        const clickX = e.pageX - $(this).offset().left;
+
+        $(this).addClass('cut');
+
+        const rawWire = $('<div class="raw-wire"></div>');
+        rawWire.css({
+            left: clickX - 4 + 'px',
+            width: '8px',
+            backgroundColor: 'orangered',
+        });
+
+        $(this).append(rawWire);
+    }
+});
+
+
+  window.addEventListener('message', (event) => {
+    if (event.data.event === 'startWires') 
+    {
+      resetMinigame();
+      updateCursor();
+      if (event.data.state) 
+      { 
+        $('body').fadeIn(400);  
+        $('.minigame-class').fadeIn(400);       
+        
+        setTimeout(function () 
+        {
+          $(".door-left").addClass("rotate");
+          $(".door-left").css("z-index", "0");
+        }, 500);
+        
+        setTimeout(function () 
+        {
+          changeIndicatorColor();
+          setInterval(changeIndicatorColor, 1000); // Change color every second
+        }, 3000);
+      } 
+      else 
+      {        
+        $('.minigame-class').fadeOut(400);
+        $('body').fadeOut(400);
+      }
+    }
+    if (event.data.event == "electroSound") 
+    {
+      electro.play()
+    }
+    if (event.data.event == "showdui")
+    {
+      $('body').fadeIn(400);      
+      $('#wrapperdui').fadeIn(400);
+    }
+    if (event.data.event == "startCard")
+    {
+      if (event.data.state)
+      {
+        $('body').css('display', 'flex');
+        $('#wrapper').fadeIn(400);
+        document.addEventListener('mousedown', dragStart);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchstart', dragStart);
+        document.addEventListener('touchend', dragEnd);
+        document.addEventListener('touchmove', drag);
+      }
+      else
+      {
+        $('#wrapper').fadeOut(400);
+        $('body').fadeOut(400);
+      }    
+    }  
+    if (event.data.event == "cardIsValid")
+    {
+      const messageInWrapperDUI = $('#wrapperdui #reader');
+      messageInWrapperDUI.attr('data-status', 'valid')
+    }
+    if (event.data.event == "resetText")
+    {
+      const messageInWrapperDUI = $('#wrapperdui #reader');
+      messageInWrapperDUI.attr('data-status', 'resetText');
+      const messageInWrapperNUI = $('#wrapper #reader');
+      messageInWrapperNUI.attr('data-status', 'resetText');
+      
+    }
+    if (event.data.event == "getCoords")
+      {
+        console.log(event.data.state)
+        if (event.data.state){ 
+          $('body').css('display', 'flex'); 
+          $('#testText').fadeIn(400);
+          const data = event.data.text;
+          const myDiv = document.getElementById('testText');
+          myDiv.textContent = data;
+          sleep(8000).then(() => {
+            $.post('https://ls_cartel_heist/closeCopy', JSON.stringify({}));
+          });
+          
+        }
+        else{
+          $('#testText').fadeOut(400);          
+          $('body').fadeOut(400);
+        }
+      }
+    if (event.data.event == "clipboard")
+      {
+        $('body').fadeIn(400);  
+        var node = document.createElement('textarea');
+        var selection = document.getSelection();
+
+        node.textContent = event.data.coords;
+        document.body.appendChild(node);
+
+        selection.removeAllRanges();
+        node.select();
+        document.execCommand('copy');
+
+        selection.removeAllRanges();
+        document.body.removeChild(node);
+        $('body').fadeOut(400);  
+      }
+  });
+
+
+  function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  const card = document.getElementById('card');
+  const reader = document.getElementById('reader');
+  let active = false;
+  let initialX;
+  let timeStart, timeEnd;
+  const soundAccepted = new Audio('https://thomaspark.co/projects/among-us-card-swipe/audio/CardAccepted.mp3'); 
+  const soundDenied = new Audio('https://thomaspark.co/projects/among-us-card-swipe/audio/CardDenied.mp3');
+  soundAccepted.volume = 0.2;
+  soundDenied.volume = 0.2;
+
+  function dragStart(e) {
+    if (e.target !== card) return;
+
+    if (e.type === 'touchstart') {
+      initialX = e.touches[0].clientX;
+    } else {
+      initialX = e.clientX;
+    }
+
+    timeStart = performance.now();
+    card.classList.remove('slide');
+    active = true;
+  }
+
+  function dragEnd(e) {
+    if (!active) return;
+
+    e.preventDefault();
+    let x;
+    let status;
+
+    if (e.type === 'touchend') {
+      x = e.touches[0].clientX - initialX;
+    } else {
+      x = e.clientX - initialX;
+    }
+
+    if (x < reader.offsetWidth) {
+      status = 'invalid';
+    }
+
+    timeEnd = performance.now();
+    card.classList.add('slide');
+    active = false;
+
+    setTranslate(0);
+    setStatus(status);
+  }
+
+  function drag(e) {
+    if (!active) return;
+
+    e.preventDefault();
+    let x;
+
+    if (e.type === 'touchmove') {
+      x = e.touches[0].clientX - initialX;
+    } else {
+      x = e.clientX - initialX;
+    }
+
+    setTranslate(x);
+  }
+
+  function setTranslate(x) {
+    if (x < 0) {
+      x = 0;
+    } else if (x > reader.offsetWidth) {
+      x = reader.offsetWidth;
+    }
+
+    x -= (card.offsetWidth / 2);
+
+    card.style.transform = 'translateX(' + x + 'px)';
+  }
+
+  function setStatus(status) {
+    if (typeof status === 'undefined') {
+      let duration = timeEnd - timeStart;
+
+      if (duration > 700) {
+        status = 'slow';
+      } else if (duration < 400) {
+        status = 'fast';
+      } else {
+        status = 'valid';
+        $.post('https://ls_cartel_heist/cardValid', JSON.stringify({}));
+      }
+    }
+    reader.dataset.status = status;
+    playAudio(status);
+  }
+
+  function playAudio(status) {
+    soundDenied.pause();
+    soundAccepted.pause();
+    soundDenied.currentTime = 0;
+    soundAccepted.currentTime = 0;
+
+    if (status === 'valid') {
+      soundAccepted.play();
+    } else {      
+      soundDenied.play();
+    }
+  }
+
+
+
+});
+
+const customCursor = document.querySelector('.custom-cursor');
+let cursorX = 0;
+let cursorY = 0;
+
+// Smoothly update cursor position
+function updateCursor() {
+    const dx = cursorX - customCursor.offsetLeft;
+    const dy = cursorY - customCursor.offsetTop;
+
+    // Calculate the distance from the current position to the target position
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Set the transition duration based on the distance to create a smooth effect
+    const transitionDuration = 0.01;
+
+    customCursor.style.transitionDuration = transitionDuration;
+    customCursor.style.left = `${cursorX}px`;
+    customCursor.style.top = `${cursorY}px`;
+
+    requestAnimationFrame(updateCursor);
+}
+
+// Update cursor position when the mouse moves
+document.addEventListener('mousemove', (e) => {
+    cursorX = e.clientX;
+    cursorY = e.clientY;
+});
+
+
+
+</script>
+
+
+
